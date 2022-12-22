@@ -26,7 +26,6 @@ function Form() {
   let utmMedium = "";
   let utmTerm = "";
   const onSubmit = (data) => {
-    console.log(data);
     if (searchParams.get('utm_source')) {
       utmSource = searchParams.get('utm_source');
       localStorage.setItem('utm_source', utmSource);
