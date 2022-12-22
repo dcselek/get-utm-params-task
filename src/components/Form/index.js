@@ -3,7 +3,7 @@ import { useForm, Controller } from "react-hook-form";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { ErrorMessage } from "@hookform/error-message";
 import 'react-phone-number-input/style.css';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 const isValidEmail = email => {
   // eslint-disable-next-line no-useless-escape
@@ -18,7 +18,6 @@ const isValidEmail = email => {
 
 function Form() {
   const { register, handleSubmit, formState: { errors }, control } = useForm();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -26,6 +25,7 @@ function Form() {
   let utmMedium = "";
   let utmTerm = "";
   const onSubmit = (data) => {
+    // check & get params from url
     if (searchParams.get('utm_source')) {
       utmSource = searchParams.get('utm_source');
       localStorage.setItem('utm_source', utmSource);
@@ -37,8 +37,12 @@ function Form() {
     if (searchParams.get('utm_term')) {
       utmTerm = searchParams.get('utm_term');
       localStorage.setItem('utm_term', utmTerm);
-    }    
-    navigate('/thanks', { state: { ...data} });
+    }
+    // remove all params and add form data params
+    searchParams.delete('utm_source');
+    searchParams.delete('utm_medium');
+    searchParams.delete('utm_term');
+    window.location.href = `/thanks/?fullName=${data.fullName}&email=${data.email}&phone=${data.phone}`;
   };
 
   const onError = (errors, e) => console.log(errors, e);
