@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useState} from "react";
 import { useForm, Controller } from "react-hook-form";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { ErrorMessage } from "@hookform/error-message";
@@ -20,24 +20,33 @@ function Form() {
   const { register, handleSubmit, formState: { errors }, control } = useForm();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   let utmSource = "";
   let utmMedium = "";
   let utmTerm = "";
   const onSubmit = (data) => {
-    utmSource = searchParams.get("utm_source");
-    utmMedium = searchParams.get("utm_medium");
-    utmTerm = searchParams.get("utm_term");
-    
-    localStorage.setItem("utm_source", utmSource);
-    localStorage.setItem("utm_medium", utmMedium);
-    localStorage.setItem("utm_term", utmTerm);
-
-    navigate("/thanks", { state: data });
+    console.log(data);
+    if (searchParams.get('utm_source')) {
+      utmSource = searchParams.get('utm_source');
+      localStorage.setItem('utm_source', utmSource);
+    }
+    if (searchParams.get('utm_medium')) {
+      utmMedium = searchParams.get('utm_medium');
+      localStorage.setItem('utm_medium', utmMedium);
+    }
+    if (searchParams.get('utm_term')) {
+      utmTerm = searchParams.get('utm_term');
+      localStorage.setItem('utm_term', utmTerm);
+    }    
+    navigate('/thanks', { state: { ...data} });
   };
+
+  const onError = (errors, e) => console.log(errors, e);
 
   return (
     <div className="bg-white shadow-md w-1/5 rounded px-8 pt-6 pb-8 mb-4">
-      <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit, onError)}>
         <div>
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="fullName">Full Name</label>
           <input placeholder="Enter your full name" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" {...register("fullName", { required: true })} />
@@ -49,12 +58,12 @@ function Form() {
             name="email"
             control={control}
             rules={{ required: "This field is required", validate: (value) => isValidEmail(value) || "Invalid email address" }}
-            render={({ field: { onChange, value } }) => (
+            render={({ field: { onChange} }) => (
               <input
-                value={value}
-                onChange={onChange}
+                value={email}
+                onChange={(e) => {onChange(e); setEmail(e.target.value) }}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                type="email"
+                type="text"
                 placeholder="Enter email"
                 id="email"
               />)}
@@ -71,10 +80,10 @@ function Form() {
             name="phone"
             control={control}
             rules={{ required: "This field is required", validate: (value) => isValidPhoneNumber(value) || "Invalid phone number" }}
-            render={({ field: { onChange, value } }) => (
+            render={({ field: { onChange } }) => (
               <PhoneInput
-                value={value}
-                onChange={onChange}
+                value={phone}
+                onChange={(e) => {onChange(e); setPhone(e) }}
                 defaultCountry="TR"
                 international
                 placeholder="Enter phone number"
