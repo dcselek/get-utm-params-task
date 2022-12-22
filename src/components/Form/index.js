@@ -21,23 +21,8 @@ function Form() {
   const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  let utmSource = "";
-  let utmMedium = "";
-  let utmTerm = "";
+
   const onSubmit = (data) => {
-    // check & get params from url
-    if (searchParams.get('utm_source')) {
-      utmSource = searchParams.get('utm_source');
-      localStorage.setItem('utm_source', utmSource);
-    }
-    if (searchParams.get('utm_medium')) {
-      utmMedium = searchParams.get('utm_medium');
-      localStorage.setItem('utm_medium', utmMedium);
-    }
-    if (searchParams.get('utm_term')) {
-      utmTerm = searchParams.get('utm_term');
-      localStorage.setItem('utm_term', utmTerm);
-    }
     // remove all params and add form data params
     searchParams.delete('utm_source');
     searchParams.delete('utm_medium');
