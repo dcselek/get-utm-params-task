@@ -1,14 +1,42 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useForm, Controller } from "react-hook-form";
-import PhoneInput, {isValidPhoneNumber} from "react-phone-number-input";
+import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import { ErrorMessage } from "@hookform/error-message";
 import 'react-phone-number-input/style.css';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+
+const isValidEmail = email => {
+  // eslint-disable-next-line no-useless-escape
+  if(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+    email
+  ) === true) {
+    return true
+  } else {
+    return false
+  }
+}
 
 function Form() {
   const { register, handleSubmit, formState: { errors }, control } = useForm();
-  const onSubmit = data => console.log(data);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  let utmSource = "";
+  let utmMedium = "";
+  let utmTerm = "";
+  const onSubmit = (data) => {
+    utmSource = searchParams.get("utm_source");
+    utmMedium = searchParams.get("utm_medium");
+    utmTerm = searchParams.get("utm_term");
+    
+    localStorage.setItem("utm_source", utmSource);
+    localStorage.setItem("utm_medium", utmMedium);
+    localStorage.setItem("utm_term", utmTerm);
+
+    navigate("/thanks", { state: data });
+  };
+
   return (
-    <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <div className="bg-white shadow-md w-1/5 rounded px-8 pt-6 pb-8 mb-4">
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
         <div>
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="fullName">Full Name</label>
@@ -20,8 +48,8 @@ function Form() {
           <Controller
             name="email"
             control={control}
-            rules={{ required: "This field is required", validate: (value) => /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,$/i.test(value) || "Invalid email address" }}
-            render={({ field: {onChange, value} }) => (
+            rules={{ required: "This field is required", validate: (value) => isValidEmail(value) || "Invalid email address" }}
+            render={({ field: { onChange, value } }) => (
               <input
                 value={value}
                 onChange={onChange}
@@ -43,9 +71,9 @@ function Form() {
             name="phone"
             control={control}
             rules={{ required: "This field is required", validate: (value) => isValidPhoneNumber(value) || "Invalid phone number" }}
-            render={({ field: {onChange, value} }) => (
+            render={({ field: { onChange, value } }) => (
               <PhoneInput
-               value={value}
+                value={value}
                 onChange={onChange}
                 defaultCountry="TR"
                 international
